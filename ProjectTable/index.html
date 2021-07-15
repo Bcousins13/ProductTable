@@ -1,0 +1,165 @@
+<html>
+
+<style>
+
+    table{
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        text-align: center;
+        font-size: large;
+    }
+
+    td, th {
+            border: 1px solid #cccc;
+            padding: 5px;
+    }
+    .Container-Background{ 
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        position: absolute;
+        top: 0;
+        justify-content: center;
+        align-items: center;
+        display: none;
+    }
+    .container{
+        width: 600px;
+        height: 300px;
+        background-color: white;
+        text-align: left;
+        padding: 20px;
+        font-size: 20;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .container-title{
+        font-size: 30;
+        margin-bottom: 40px;
+    }
+    .container-buttons{
+        font-size: 20;
+        text-align: right;
+        
+    }
+    input{
+        width: 100%;
+        display: block;
+
+    }
+    button{
+        cursor: pointer;
+    }
+
+</style>
+
+
+<script>
+    var theurl = "https://test.clerenet.com"
+    //read all the product data from the RESTapi
+    function loadData(){
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", theurl + "/product",true);
+        xmlhttp.onreadystatechange = function(){
+            if(xmlhttp.readyState ===4 && xmlhttp.status === 200){
+                var items = JSON.parse(xmlhttp.responseText);
+                var main ="";   
+                for(i = 0; i <items.length; i++){
+                    main += "<tr><td>"+items[i].id+"</td><td>"+ items[i].name+"</td><td>"+items[i].price+" "+  items[i].currency.toUpperCase()+"</td><td><button id='Edit'>Edit</button> | <button>Delete</button></td></tr>";
+                }         
+                var tblbottom = "</table>"
+                var tbl = main + tblbottom;
+                document.getElementById("tabledata").innerHTML = tbl;            
+            }
+        };
+        xmlhttp.send();
+    }
+
+    window.onload = () => {
+        loadData();
+    }
+    function ShowAddPage(){
+        document.querySelector(".Container-Background").style.display = "flex";
+    }
+    function HideAddPage(){
+        document.querySelector(".Container-Background").style.display = "none"
+        document.getElementById("name").value = null;
+        document.getElementById("price").value = null;
+        document.getElementById("currency").value = null;
+    }
+</script>
+
+<head>
+    Product Table 
+</head>
+<body>
+    
+    <table id="ProductTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tabledata"></tbody>
+    </table>
+    <Button onclick="ShowAddPage()" name="AddProduct"  class="button">Add Product</Button></tr>
+
+    <div class="Container-Background">
+        <div class="container">
+            <div class="container-title">Add/Edit Product</div>
+                <form id="form" method="post">
+                    <label>Name:</label>
+                    <input type="text", id="name">
+                    <label>Price:</label>
+                    <input type="text" id="price">
+                    <label>Currency:</label>
+                    <input type="text" id="currency">
+                </form>
+                <div class="container-buttons">
+                    <button onclick="HideAddPage()" type="Cancel">Cancel</button>
+                    <input id="submitbutton" type="submit" value="Save"/>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+</body>
+<script>
+    var theform = document.getElementById('submitbutton')
+    theform.addEventListener('submit', function(e){
+
+    e.preventDefault()
+    
+    var name = document.getElementById("name").value
+    var price = document.getElementById("price").value
+    var currency = document.getElementById("currency").value
+
+    fetch("https://test.clerenet.com/product", {
+        method:'POST',
+        body:JSON.stringify({
+            name:name,
+            price:price,
+            currency:currency
+        }),
+        headers:{
+            "Content-Type":"application/json; charset=UTF-8"
+        }
+    })
+    .then(function(response){
+        return response.json()
+    })
+    .then(function(data){
+        console.log(data)
+        var entry =""
+        entry += "<tr><td>"+data.id+"</td><td>"+ data.name+"</td><td>"+ data.price +" "+  data.currency.toUpperCase()+"</td><td><button id='Edit'>Edit</button> | <button>Delete</button></td></tr>"
+        document.getElementById("tabledata").innerHTML = tbl
+    });
+    
+})
+
+</script>
+</html>
